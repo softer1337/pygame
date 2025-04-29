@@ -1,0 +1,36 @@
+[   
+    {
+        "type":"bg",
+        "texture":"assets\\bg.jpg"
+    },
+    {
+        "type":"wall",
+        "pos":{"x":700,"y":600},
+        "size":{"width": 64, "height": 64},
+        "trigger": {"name":"wallc1"},
+        "texture":"assets\\wall.jpg",
+        "collidable":true,
+        "layer":2
+        
+    },
+    {
+        "type": "collider",
+        "pos": {
+            "x": 0, 
+            "y": 690  
+        },
+        "size": {
+            "width": 1280, 
+            "height": 30
+        },
+        "trigger": {
+            "name": "wallc1"
+        },
+        "layer": 2
+    },
+    {
+        "type":"spawnpoint",
+        "pos":{"x":0,"y":450}
+    }
+    
+]
