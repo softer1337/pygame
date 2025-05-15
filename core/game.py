@@ -66,8 +66,16 @@ class Game:
         self.objectmanager = ObjectManager()
         self.triggermanager = TriggerManager()
 
-        self.player = GameObject('assets\\playerm2.png', (100, 450), (100, 200),spawnable=True,collidable=True)
-        self.player.add_texture('assets\\playerm1.png', (100, 200))
+        self.player = GameObject('assets\\player\\frame_0.png', (100, 450), (256,256),spawnable=True,collidable=True)
+        self.player.add_texture('assets\\player\\frame_1.png', (256, 256))
+        self.player.add_texture('assets\\player\\frame_2.png', (256, 256))
+        self.player.add_texture('assets\\player\\frame_3.png', (256, 256))
+        self.player.add_texture('assets\\player\\frame_4.png', (256, 256))
+        self.player.add_texture('assets\\player\\frame_5.png', (256, 256))
+        self.player.add_texture('assets\\player\\frame_6.png', (256, 256))
+        self.player.add_texture('assets\\player\\frame_7.png', (256, 256))
+        self.player.add_texture('assets\\player\\frame_8.png', (256, 256))
+        self.player.add_texture('assets\\player\\frame_9.png', (256, 256))
         self.objectmanager.add_object(self.player, 2)
 
         self.triggermanager.add_trigger(
