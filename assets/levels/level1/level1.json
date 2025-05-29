@@ -1,38 +1,119 @@
-[   
+[
     {
-        "type":"bg",
-        "texture":"assets\\bg.jpg"
-    },
-    {
-        "type":"wall",
-        "pos":{"x":700,"y":600},
-        "size":{"width": 64, "height": 64},
-        "trigger": {"name":"wallc1"},
-        "texture":"assets\\wall.jpg",
-        "collidable":true,
-        "layer":2,
-        "tag":"wall1"
-        
+        "type": "bg",
+        "texture": "assets\\bg.png"
     },
     {
         "type": "collider",
         "pos": {
-            "x": 0, 
-            "y": 690  
+            "x": 0,
+            "y": 690
         },
         "size": {
-            "width": 1280, 
-            "height": 30
+            "width": 3840,
+            "height": 100
         },
         "trigger": {
             "name": "wallc2"
         },
-        "layer": 2,
-        "tag":"wall2"
+        "layer": 1,
+        "tag": "ground"
     },
     {
-        "type":"spawnpoint",
-        "pos":{"x":0,"y":450}
+        "type": "spawnpoint",
+        "pos": {
+            "x": 400,
+            "y": 450
+        }
+    },
+    {
+        "type": "wall",
+        "pos": {
+            "x": 700,
+            "y": 220
+        },
+        "size": {
+            "width": 500,
+            "height": 500
+        },
+        "trigger": {
+            "name": "post"
+        },
+        "texture": "assets\\house\\main_house.png",
+        "collidable": false,
+        "layer": 1,
+        "tag": "main_house"
+    },
+    {
+        "type": "wall",
+        "pos": {
+            "x": 1300,
+            "y": 110
+        },
+        "size": {
+            "width": 0,
+            "height": 0
+        },
+        "trigger": {
+            "name": "house_1"
+        },
+        "texture": "assets\\house\\house_1.png",
+        "collidable": false,
+        "layer": 1,
+        "tag": "house1"
+    },
+    {
+        "type": "wall",
+        "pos": {
+            "x": 1900,
+            "y": 110
+        },
+        "size": {
+            "width": 0,
+            "height": 0
+        },
+        "trigger": {
+            "name": "house_2"
+        },
+        "texture": "assets\\house\\house_2.png",
+        "collidable": false,
+        "layer": 1,
+        "tag": "house2"
+    },
+    {
+        "type": "wall",
+        "pos": {
+            "x": 2500,
+            "y": 110
+        },
+        "size": {
+            "width": 0,
+            "height": 0
+        },
+        "trigger": {
+            "name": "house_3"
+        },
+        "texture": "assets\\house\\house_3.png",
+        "collidable": false,
+        "layer": 1,
+        "tag": "house3"
+    },
+    {
+        "type": "wall",
+        "pos": {
+            "x": 3100,
+            "y": 110
+        },
+        "size": {
+            "width": 0,
+            "height": 0
+        },
+        "trigger": {
+            "name": "house_4"
+        },
+        "texture": "assets\\house\\house_4.png",
+        "collidable": false,
+        "layer": 1,
+        "tag": "house4"
     }
-    
 ]

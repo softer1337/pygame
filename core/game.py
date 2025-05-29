@@ -2,17 +2,19 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-import pygame
+import pygame,random
 from utils.input import InputHandler
 from scene import Scene
 from object_manager import ObjectManager
-from objects.gameobjects import GameObject
+from objects.gameobjects import GameObject,Inventory,Item
 from camera import Camera
 from trigger import TriggerManager, ZoneTrigger, KeyTrigger, TimerTrigger
 from menu import MenuScene
-from utils.map_loader import load_scene_from_json
+import utils.map_loader as map_loader
 from settings import *
 from text import TextManager
+
+items = [Item("Еда",100,2),Item("Вода",30,4)]
 
 class Game:
     def __init__(self, screen):
@@ -33,6 +35,7 @@ class Game:
         self.jump_power = jump_power
         self.sprint_power = sprint_power
         self.sprint = False
+        self.score = 0
 
         self.scene = Scene(screen)
         self.switch_to_menu()
@@ -42,7 +45,7 @@ class Game:
         self.camera = Camera()
         self.scene = Scene(self.screen)
         self.text_manager = TextManager(self.scene)
-        self.menu_scene = MenuScene(self.scene, self.input, self.switch_to_gameplay)
+        self.menu_scene = MenuScene(self.scene, self.input, self.switch_to_gameplay,self.text_manager,self.camera)
         
 
     def jump(self):
@@ -65,6 +68,8 @@ class Game:
         self.text_manager = TextManager(self.scene)
         self.objectmanager = ObjectManager()
         self.triggermanager = TriggerManager()
+        self.inventory = Inventory()
+
 
         self.player = GameObject('assets\\player\\frame_0.png', (100, 450),spawnable=True,collidable=True,tag='player')
         self.player.add_texture('assets\\player\\frame_1.png')
@@ -99,8 +104,7 @@ class Game:
         self.triggermanager.add_trigger(
             KeyTrigger(pygame.K_LSHIFT, self.switch_speed,input_handler=self.input,once=False)
         )
-
-        load_scene_from_json(
+        map_loader.load_scene_from_json(
             self.objectmanager,
             self.triggermanager,
             "assets/levels/level1/level1.json",
@@ -152,12 +156,24 @@ class Game:
                                                                     15, self.camera.pos+(5, 75), (255,255,255))
             self.text_manager.add_text("Input/MousePos: "+str(self.input.mouse_position),
                                                                     15, self.camera.pos+(5, 90), (255,255,255))
-            self.text_manager.add_text("Tags: "+str(self.objectmanager.get_by_tag("wall2").pos),
+            self.text_manager.add_text("Player pos: "+str(self.objectmanager.get_by_tag("player").pos),
                                                                     15, self.camera.pos+(5, 105), (255,255,255)) 
-
     def switch_speed(self):
         self.sprint = True
+
+    def draw_inv(self):
+        if map_loader.can_openpostmenu: self.inventory.add_item(random.choice(items))
+        if map_loader.in_house: self.score += self.inventory.remove_item().cost
         
+        if not self.inventory.items:
+            return
+
+        start_x, start_y = 10, self.screen.get_height() - 75
+        
+        for i, item in enumerate(self.inventory.items):
+            item_text = f"{i+1}. {item.name} (Dur: {item.dur}, Cond: {item.cond})"
+            self.text_manager.add_text(item_text, 15, self.camera.pos+(start_x, start_y + i * 20), (255, 255, 255))
+            
     def run(self):
         running = True
         while running:
@@ -173,6 +189,7 @@ class Game:
                 self.menu_scene.draw()
                 self.camera.pos = pygame.Vector2(0,0)
                 self.scene.draw(self.camera)
+                self.text_manager.draw()
 
             elif self.state == "gameplay":
                 self.vertical_speed = min(self.vertical_speed + self.gravity * deltaTime, 1500)
@@ -194,8 +211,9 @@ class Game:
 
 
                 self.triggermanager.update(deltaTime)
-                self.text_manager.draw()
+                
                 self.objectmanager.update_all()
+                self.inventory.update()
                 for obj, layer in self.objectmanager.getdrawlist():
                     self.scene.add_object(obj, layer)
                 screen_w, screen_h = screensize
@@ -206,15 +224,20 @@ class Game:
 
                 self.camera.set_position(cam_x, cam_y)
 
+                
 
                 self.draw_overlay()
-                
+                self.draw_inv()
+                self.text_manager.add_text("Счёт: "+str(self.score),15,self.camera.pos+(1180,20),(255,255,255))
+
+                self.text_manager.draw()
+
                 if not self.input.is_key_pressed(pygame.K_q):
                     self.hotkeypressed = False
-
 
 
                 self.scene.draw(self.camera) 
 
             self.is_moving = False
+            map_loader.reset_globals()
             pygame.display.flip()

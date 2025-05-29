@@ -7,16 +7,28 @@ import settings
 from enum import Enum
 import random
 
-c = 0
+can_openpostmenu = False
+in_house = False
 
-def p():
-    global c
-    c += 1
-    print(c)
+def setpostmenu():
+    global can_openpostmenu
+    can_openpostmenu = True
 
+def setinhouse():
+    global in_house
+    in_house = True
+
+def reset_globals():
+    global can_openpostmenu,in_house
+    can_openpostmenu = False
+    in_house = False
 
 triggers = {
-    "wallc1": ZoneTrigger((700,600,64,64), pygame.Rect(0, 0, 0, 0), p, False)
+    "post": ZoneTrigger((1120,620,70,30), pygame.Rect(0, 0, 0, 0), setpostmenu , False),
+    "house_1":ZoneTrigger((1300,110,322,609),pygame.Rect(0,0,0,0), setinhouse, True),
+    "house_2":ZoneTrigger((1900,110,322,609),pygame.Rect(0,0,0,0), setinhouse, True),
+    "house_3":ZoneTrigger((2500,110,322,609),pygame.Rect(0,0,0,0), setinhouse, True),
+    "house_4":ZoneTrigger((3100,110,322,609),pygame.Rect(0,0,0,0), setinhouse, True)
 }
 
 
@@ -37,8 +49,13 @@ def load_scene_from_json(object_manager: ObjectManager, trigger_manager: Trigger
 
         match object_type:
             case ObjectType.BG:
-                bg = GameObject(obj['texture'], (0, 0), settings.screensize)
-                object_manager.add_object(bg, 0)
+                base_texture = obj["texture"]
+                tile_width = 1024
+                tiles_count = 4
+
+                for i in range(tiles_count):
+                    bg = GameObject(base_texture, (i * tile_width, 0), settings.screensize)
+                    object_manager.add_object(bg, 0)
 
             case ObjectType.WALL:
                 pos = obj["pos"]

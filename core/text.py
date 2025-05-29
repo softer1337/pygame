@@ -25,3 +25,9 @@ class TextManager():
     
         self.texts = []
         self.rects = []
+    def raw_draw(self):
+        for i in range(len(self.texts)):
+            pos = self.rects[i].topleft
+            self.scene.screen.blit(self.texts[i], pos)
+        self.texts.clear()
+        self.rects.clear()

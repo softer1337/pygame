@@ -1,7 +1,7 @@
-import pygame
+import pygame,random
 
 class GameObject():
-    def __init__(self, img_dir=None, pos=(0, 0), scale=(0, 0), surface=None,spawnable=False,collidable=False,tag=''):
+    def __init__(self, img_dir=None, pos=(0, 0), scale=(0, 0), surface=None,spawnable=False,collidable=False,tag='',metadata=[]):
         self.scale = scale
         self.pos = pos
         self.sx = 0
@@ -10,6 +10,7 @@ class GameObject():
         self.spawnable = spawnable
         self.collidable = collidable
         self.tag = tag
+        self.metadata = metadata
         if surface:
             self.img = surface 
         else:
@@ -101,3 +102,46 @@ class GameObject():
     def collides_with(self, other):
         return self.get_rect().colliderect(other.get_rect())
 
+class Item():
+    def __init__(self, name, cost, dur):
+        self.name = name
+        self.cost = cost
+        self.dur = dur 
+        self.cond = 100  
+    
+    def damage(self, force):
+        self.dur -= force
+        self.cond = max(0, (self.dur / (self.dur + force)) * 100)
+        self.cost *= self.cond/100
+    def get_data(self):
+        return f"{self.name} (Цена: {self.cost}, Сост.: {self.cond}%, Прочн.: {self.dur})"
+    def __str__(self):
+        return self.name   
+class Inventory():
+    def __init__(self, max_size=3):
+        self.items = []
+        self.max_size = max_size
+    
+    def add_item(self, item: Item):
+        if len(self.items) < self.max_size:
+            self.items.append(item)
+            return True
+        return False
+    
+    def remove_item(self) -> Item:
+        to_rem = random.choice(self.items)
+        self.items.remove(to_rem)
+        return to_rem
+    
+    def update(self):
+        for item in self.items[:]: 
+            if item.cond <= 0 or item.dur <= 0:
+                self.items.remove(item)
+    
+    def set_max_size(self, new_size):
+        self.max_size = new_size
+        if len(self.items) > self.max_size:
+            self.items = self.items[:self.max_size]
+    
+    def __str__(self):
+        return "\n".join(f"{i+1}. {item.get_data()}" for i, item in enumerate(self.items))
