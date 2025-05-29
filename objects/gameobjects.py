@@ -1,7 +1,7 @@
 import pygame
 
 class GameObject():
-    def __init__(self, img_dir=None, pos=(0, 0), scale=(0, 0), surface=None,spawnable=False,collidable=False):
+    def __init__(self, img_dir=None, pos=(0, 0), scale=(0, 0), surface=None,spawnable=False,collidable=False,tag=''):
         self.scale = scale
         self.pos = pos
         self.sx = 0
@@ -9,19 +9,25 @@ class GameObject():
         self.textures = []
         self.spawnable = spawnable
         self.collidable = collidable
-
+        self.tag = tag
         if surface:
             self.img = surface 
         else:
-            self.img = pygame.transform.scale(pygame.image.load(img_dir).convert_alpha(), scale)
+            if self.scale != (0,0):
+                self.img = pygame.transform.scale(pygame.image.load(img_dir).convert_alpha(), scale)
+            else:
+                self.img = pygame.image.load(img_dir).convert_alpha()
 
         self.textures.append(self.img)
         self.active_texture = 0
         self.image_rect = self.textures[self.active_texture].get_rect(topleft=self.pos)
 
-    def add_texture(self, texture_dir, scale):
-        texture = pygame.transform.scale(pygame.image.load(texture_dir).convert_alpha(), scale)
-        self.textures.append(texture)
+    def add_texture(self, texture_dir, scale=(0,0)):
+        if self.scale != (0,0):
+            self.texture = pygame.transform.scale(pygame.image.load(texture_dir).convert_alpha(), scale)
+        else:
+            self.texture = pygame.image.load(texture_dir).convert_alpha()
+        self.textures.append(self.texture)
 
     def swap_texture(self):
         self.active_texture = (self.active_texture + 1) % len(self.textures)
@@ -86,7 +92,12 @@ class GameObject():
         screen.blit(self.textures[self.active_texture], screen_pos)
 
     def get_rect(self):
-        return pygame.Rect(self.pos[0], self.pos[1], self.scale[0], self.scale[1])
+        if self.scale != (0, 0):
+            width, height = self.scale
+        else:
+            width, height = self.textures[self.active_texture].get_size()
+        return pygame.Rect(self.pos[0], self.pos[1], width, height)
+
     def collides_with(self, other):
         return self.get_rect().colliderect(other.get_rect())
 

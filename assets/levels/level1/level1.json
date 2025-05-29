@@ -10,7 +10,8 @@
         "trigger": {"name":"wallc1"},
         "texture":"assets\\wall.jpg",
         "collidable":true,
-        "layer":2
+        "layer":2,
+        "tag":"wall1"
         
     },
     {
@@ -24,9 +25,10 @@
             "height": 30
         },
         "trigger": {
-            "name": "wallc1"
+            "name": "wallc2"
         },
-        "layer": 2
+        "layer": 2,
+        "tag":"wall2"
     },
     {
         "type":"spawnpoint",

@@ -28,11 +28,11 @@ class Game:
         self.hotkeypressed = False
         self.debug_mode = False
         self.vertical_speed = 0
-        self.gravity = 2000 
-        self.jump_power = -700
         self.is_on_ground = False
-
-
+        self.gravity = gravity 
+        self.jump_power = jump_power
+        self.sprint_power = sprint_power
+        self.sprint = False
 
         self.scene = Scene(screen)
         self.switch_to_menu()
@@ -66,16 +66,16 @@ class Game:
         self.objectmanager = ObjectManager()
         self.triggermanager = TriggerManager()
 
-        self.player = GameObject('assets\\player\\frame_0.png', (100, 450), (256,256),spawnable=True,collidable=True)
-        self.player.add_texture('assets\\player\\frame_1.png', (256, 256))
-        self.player.add_texture('assets\\player\\frame_2.png', (256, 256))
-        self.player.add_texture('assets\\player\\frame_3.png', (256, 256))
-        self.player.add_texture('assets\\player\\frame_4.png', (256, 256))
-        self.player.add_texture('assets\\player\\frame_5.png', (256, 256))
-        self.player.add_texture('assets\\player\\frame_6.png', (256, 256))
-        self.player.add_texture('assets\\player\\frame_7.png', (256, 256))
-        self.player.add_texture('assets\\player\\frame_8.png', (256, 256))
-        self.player.add_texture('assets\\player\\frame_9.png', (256, 256))
+        self.player = GameObject('assets\\player\\frame_0.png', (100, 450),spawnable=True,collidable=True,tag='player')
+        self.player.add_texture('assets\\player\\frame_1.png')
+        self.player.add_texture('assets\\player\\frame_2.png')
+        self.player.add_texture('assets\\player\\frame_3.png')
+        self.player.add_texture('assets\\player\\frame_4.png')
+        self.player.add_texture('assets\\player\\frame_5.png')
+        self.player.add_texture('assets\\player\\frame_6.png')
+        self.player.add_texture('assets\\player\\frame_7.png')
+        self.player.add_texture('assets\\player\\frame_8.png')
+        self.player.add_texture('assets\\player\\frame_9.png')
         self.objectmanager.add_object(self.player, 2)
 
         self.triggermanager.add_trigger(
@@ -96,7 +96,9 @@ class Game:
         self.triggermanager.add_trigger(
             KeyTrigger(pygame.K_ESCAPE, self.switch_to_menu, self.input, once=False)
         )
-
+        self.triggermanager.add_trigger(
+            KeyTrigger(pygame.K_LSHIFT, self.switch_speed,input_handler=self.input,once=False)
+        )
 
         load_scene_from_json(
             self.objectmanager,
@@ -111,14 +113,18 @@ class Game:
                 if mode == "debug":print(f"[DEBUG] Bound ZoneTrigger at {trig.rect} to player.rect")
 
     def move(self, direction):
-        dx = direction * self.player_speed * self.deltaTime
+        
+        if self.sprint == True:
+            dx = direction * self.player_speed * self.deltaTime * self.sprint_power
+        else:
+            dx = direction * self.player_speed * self.deltaTime
         self.player.move_with_collisions(dx, 0, self.objectmanager.get_collidables())
         if direction != 0:
             if (direction > 0 and self.last_move != 'd') or (direction < 0 and self.last_move != 'a'):
                 self.player.flip()
                 self.last_move = 'd' if direction > 0 else 'a'
         self.is_moving = direction != 0
-
+        self.sprint = False
     def anim(self):
         if self.is_moving:
             self.player.swap_texture()
@@ -146,8 +152,11 @@ class Game:
                                                                     15, self.camera.pos+(5, 75), (255,255,255))
             self.text_manager.add_text("Input/MousePos: "+str(self.input.mouse_position),
                                                                     15, self.camera.pos+(5, 90), (255,255,255))
-                    
+            self.text_manager.add_text("Tags: "+str(self.objectmanager.get_by_tag("wall2").pos),
+                                                                    15, self.camera.pos+(5, 105), (255,255,255)) 
 
+    def switch_speed(self):
+        self.sprint = True
         
     def run(self):
         running = True

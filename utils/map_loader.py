@@ -1,16 +1,24 @@
 import json
-import pygame
-from utils.input import InputHandler
-from core.scene import Scene
 from core.object_manager import ObjectManager
 from objects.gameobjects import GameObject
-from core.camera import Camera
 from core.trigger import *
 from settings import *
 import settings
-from assets.triggers import triggers
 from enum import Enum
 import random
+
+c = 0
+
+def p():
+    global c
+    c += 1
+    print(c)
+
+
+triggers = {
+    "wallc1": ZoneTrigger((700,600,64,64), pygame.Rect(0, 0, 0, 0), p, False)
+}
+
 
 
 class ObjectType(Enum):
@@ -20,7 +28,7 @@ class ObjectType(Enum):
     COLLIDER = 'collider'
 
 
-def load_scene_from_json(object_manager: ObjectManager, trigger_manager: TriggerManager, path, player: GameObject):
+def load_scene_from_json(object_manager: ObjectManager, trigger_manager: TriggerManager, path, player: GameObject):         
     with open(path, 'r') as jsonf:
         data = json.load(jsonf)
 
@@ -37,8 +45,8 @@ def load_scene_from_json(object_manager: ObjectManager, trigger_manager: Trigger
                 size = obj["size"]
                 trigger_data = obj.get("trigger")
                 collidable = obj["collidable"]
-
-                wall = GameObject(obj["texture"], (pos['x'], pos['y']), (size['width'], size['height']),collidable=collidable)
+                tag = obj["tag"]
+                wall = GameObject(obj["texture"], (pos['x'], pos['y']), (size['width'], size['height']),collidable=collidable,tag=tag)
                 object_manager.add_object(wall, obj["layer"])
 
                 if trigger_data:
@@ -69,8 +77,9 @@ def load_scene_from_json(object_manager: ObjectManager, trigger_manager: Trigger
                 pos = obj["pos"]
                 size = obj["size"]
                 trigger_data = obj.get("trigger")
+                tag = obj["tag"]
 
-                wall = GameObject('assets\\empty.png', (pos['x'], pos['y']), (size['width'], size['height']),collidable=True)
+                wall = GameObject('assets\\empty.png', (pos['x'], pos['y']), (size['width'], size['height']),collidable=True,tag=tag)
                 object_manager.add_object(wall, obj["layer"])
 
                 if trigger_data:
