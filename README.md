@@ -1,1 +1,1 @@
-pygame simple 2d engine
+pygame simple 2d engine and game based on triggers, scenes, objects, managers
