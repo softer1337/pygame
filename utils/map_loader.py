@@ -9,14 +9,16 @@ import random
 
 can_openpostmenu = False
 in_house = False
+c = 0
 
 def setpostmenu():
     global can_openpostmenu
     can_openpostmenu = True
 
 def setinhouse():
-    global in_house
+    global in_house,c
     in_house = True
+    c += 1
 
 def reset_globals():
     global can_openpostmenu,in_house
@@ -54,7 +56,7 @@ def load_scene_from_json(object_manager: ObjectManager, trigger_manager: Trigger
                 tiles_count = 4
 
                 for i in range(tiles_count):
-                    bg = GameObject(base_texture, (i * tile_width, 0), settings.screensize)
+                    bg = GameObject(base_texture, (i * tile_width, 200), settings.screensize)
                     object_manager.add_object(bg, 0)
 
             case ObjectType.WALL:

@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-import pygame,random
+import pygame,random,time
 from utils.input import InputHandler
 from scene import Scene
 from object_manager import ObjectManager
@@ -14,7 +14,24 @@ import utils.map_loader as map_loader
 from settings import *
 from text import TextManager
 
-items = [Item("Еда",100,2),Item("Вода",30,4)]
+items = [
+    Item("Еда", 100, 2),
+    Item("Вода", 30, 4),
+    Item("Аптечка", 200, 1),
+    Item("Одежда", 150, 3),
+    Item("Инструменты", 300, 4),
+    Item("Радио", 400, 2),
+    Item("Карта", 50, 1),
+    Item("Фонарь", 180, 2),
+    Item("Палатка", 350, 7),
+    Item("Спички", 20, 1),
+    Item("Канистра", 280, 5),
+    Item("Зарядное устройство", 220, 2),
+    Item("Сигнальные ракеты", 150, 3),
+    Item("Защитная маска", 300, 2),
+    Item("Рюкзак", 500, 6),
+]
+
 
 class Game:
     def __init__(self, screen):
@@ -25,8 +42,9 @@ class Game:
         self.state = "menu"
         self.is_moving = False
         self.last_move = 'd'
-        self.deltaTime = 1
-        self.player_speed = 3
+        self.deltaTime = self.clock.tick(60) / 1000.0
+
+        self.player_speed = 150
         self.hotkeypressed = False
         self.debug_mode = False
         self.vertical_speed = 0
@@ -36,6 +54,7 @@ class Game:
         self.sprint_power = sprint_power
         self.sprint = False
         self.score = 0
+        
 
         self.scene = Scene(screen)
         self.switch_to_menu()
@@ -52,6 +71,7 @@ class Game:
         if self.is_on_ground:
             self.vertical_speed = self.jump_power
             self.is_on_ground = False
+            self.m_heal(0.1)
 
 
     def swich_fps(self):
@@ -84,10 +104,10 @@ class Game:
         self.objectmanager.add_object(self.player, 2)
 
         self.triggermanager.add_trigger(
-            KeyTrigger(pygame.K_d, lambda: self.move(1), self.input, once=False)
+            KeyTrigger(pygame.K_a, lambda: self.move(-1), self.input, once=False)
         )
         self.triggermanager.add_trigger(
-            KeyTrigger(pygame.K_a, lambda: self.move(-1), self.input, once=False)
+            KeyTrigger(pygame.K_d, lambda: self.move(1), self.input, once=False)
         )
         self.triggermanager.add_trigger(
             TimerTrigger(150, self.anim, once=False)
@@ -129,6 +149,7 @@ class Game:
                 self.last_move = 'd' if direction > 0 else 'a'
         self.is_moving = direction != 0
         self.sprint = False
+        print(dx)
     def anim(self):
         if self.is_moving:
             self.player.swap_texture()
@@ -138,6 +159,17 @@ class Game:
         for trigger in self.triggermanager.triggers:
             if isinstance(trigger, TimerTrigger) and not trigger.once:
                 trigger.reset()
+
+    def get_and_write_score(self):
+        with open("max_score.txt", 'r', encoding='utf-8') as file:
+            old_score = float(file.read())
+
+        if old_score < self.score:
+            with open("max_score.txt", 'w', encoding='utf-8') as file:
+                file.write(str(self.score))
+
+        return old_score
+
 
     def draw_overlay(self):
         if self.debug_mode:
@@ -161,6 +193,10 @@ class Game:
     def switch_speed(self):
         self.sprint = True
 
+    def m_heal(self,amount):
+        for i in self.inventory.items:
+            i.damage(amount)
+
     def draw_inv(self):
         if map_loader.can_openpostmenu: self.inventory.add_item(random.choice(items))
         if map_loader.in_house: self.score += self.inventory.remove_item().cost
@@ -171,16 +207,22 @@ class Game:
         start_x, start_y = 10, self.screen.get_height() - 75
         
         for i, item in enumerate(self.inventory.items):
-            item_text = f"{i+1}. {item.name} (Dur: {item.dur}, Cond: {item.cond})"
+            item_text = f"{i+1}. {item.name} (Dur: {round(item.dur,1)}, Cond: {round(item.cond,1)})"
             self.text_manager.add_text(item_text, 15, self.camera.pos+(start_x, start_y + i * 20), (255, 255, 255))
-            
+    def end(self):
+        self.running = False
+    def end_game(self):
+        old_score = self.get_and_write_score()
+        self.text_manager.add_text("Счёт:"+str(round(self.score,1))+"Рекорд:"+str(round(old_score,1)),30,(1280/2-300, 720/2-30)+self.camera.pos,(255,255,255))
+        self.triggermanager.add_trigger(TimerTrigger(3000,self.end))
+        
     def run(self):
-        running = True
-        while running:
-            deltaTime = self.clock.tick(60) / 1000.0
+        self.running = True
+        while self.running:
+            self.deltaTime = self.clock.tick(60) / 1000.0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    self.running = False
 
             self.input.update()
 
@@ -192,11 +234,11 @@ class Game:
                 self.text_manager.draw()
 
             elif self.state == "gameplay":
-                self.vertical_speed = min(self.vertical_speed + self.gravity * deltaTime, 1500)
+                self.vertical_speed = min(self.vertical_speed + self.gravity * self.deltaTime, 1500)
 
                 self.player.move_with_collisions(
                     0,
-                    self.vertical_speed * deltaTime,
+                    self.vertical_speed * self.deltaTime,
                     self.objectmanager.get_collidables()
                 )
 
@@ -210,7 +252,7 @@ class Game:
 
 
 
-                self.triggermanager.update(deltaTime)
+                self.triggermanager.update(self.deltaTime)
                 
                 self.objectmanager.update_all()
                 self.inventory.update()
@@ -228,8 +270,8 @@ class Game:
 
                 self.draw_overlay()
                 self.draw_inv()
-                self.text_manager.add_text("Счёт: "+str(self.score),15,self.camera.pos+(1180,20),(255,255,255))
-
+                self.text_manager.add_text("Счёт: "+str(round(self.score,1)),25,self.camera.pos+(1100,20),(255,255,255))
+                if map_loader.c == 4:self.end_game()
                 self.text_manager.draw()
 
                 if not self.input.is_key_pressed(pygame.K_q):

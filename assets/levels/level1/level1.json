@@ -7,7 +7,7 @@
         "type": "collider",
         "pos": {
             "x": 0,
-            "y": 690
+            "y": 720
         },
         "size": {
             "width": 3840,
@@ -115,5 +115,43 @@
         "collidable": false,
         "layer": 1,
         "tag": "house4"
+    },
+
+ 
+    {
+        "type": "wall",
+        "pos": { "x": 1250, "y": 650 },
+        "size": { "width": 100, "height": 40 },
+        "texture": "assets\\wall.jpg",
+        "collidable": true,
+        "layer": 1,
+        "tag": "obs_main_to_1"
+    },
+    {
+        "type": "wall",
+        "pos": { "x": 1600, "y": 650 },
+        "size": { "width": 100, "height": 40 },
+        "texture": "assets\\wall.jpg",
+        "collidable": true,
+        "layer": 1,
+        "tag": "obs_1_to_2"
+    },
+    {
+        "type": "wall",
+        "pos": { "x": 2200, "y": 650 },
+        "size": { "width": 100, "height": 40 },
+        "texture": "assets\\wall.jpg",
+        "collidable": true,
+        "layer": 1,
+        "tag": "obs_2_to_3"
+    },
+    {
+        "type": "wall",
+        "pos": { "x": 2800, "y": 650 },
+        "size": { "width": 100, "height": 40 },
+        "texture": "assets\\wall.jpg",
+        "collidable": true,
+        "layer": 1,
+        "tag": "obs_3_to_4"
     }
 ]

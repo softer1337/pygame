@@ -129,6 +129,8 @@ class Inventory():
         return False
     
     def remove_item(self) -> Item:
+        if len(self.items) <= 0:
+            return
         to_rem = random.choice(self.items)
         self.items.remove(to_rem)
         return to_rem

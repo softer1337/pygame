@@ -2,32 +2,39 @@ import pygame
 from scene import Scene
 from objects.gameobjects import GameObject
 
-class TextManager():
+class TextManager:
     def __init__(self, scene: Scene):
         self.scene = scene
-        self.texts = []
-        self.rects = []
-        self.active_font = 0
+        self.texts = [] 
+        self.font_cache = {}  
+        self.created_objects = []  
 
-    def add_text(self, text, size, pos, color=(0, 0, 0)):
-        self.font1 = pygame.font.SysFont('arial', size)
-        surface = self.font1.render(text, True, color)
-        rect = surface.get_rect()
-        rect.topleft = pos
-        self.texts.append(surface)
-        self.rects.append(rect)
+    def get_font(self, size: int) -> pygame.font.Font:
+        if size not in self.font_cache:
+            self.font_cache[size] = pygame.font.SysFont('arial', size)
+        return self.font_cache[size]
+
+    def add_text(self, text: str, size: int, pos: tuple[int, int], color=(0, 0, 0)):
+        font = self.get_font(size)
+        surface = font.render(text, True, color)
+        rect = surface.get_rect(topleft=pos)
+        self.texts.append((surface, rect))
 
     def draw(self):
-        for i in range(len(self.texts)):
-            pos = self.rects[i].topleft
-            text_object = GameObject(surface=self.texts[i], pos=pos, scale=(self.texts[i].get_width(), self.texts[i].get_height()))
-            self.scene.add_object(text_object, 100)
-    
-        self.texts = []
-        self.rects = []
-    def raw_draw(self):
-        for i in range(len(self.texts)):
-            pos = self.rects[i].topleft
-            self.scene.screen.blit(self.texts[i], pos)
+        self.created_objects.clear()
+
+        for surface, rect in self.texts:
+            text_object = GameObject(
+                surface=surface,
+                pos=rect.topleft,
+                scale=surface.get_size()
+            )
+            self.scene.add_object(text_object, layer=100)
+            self.created_objects.append(text_object)
+
         self.texts.clear()
-        self.rects.clear()
+
+    def raw_draw(self):
+        for surface, rect in self.texts:
+            self.scene.screen.blit(surface, rect.topleft)
+        self.texts.clear()
